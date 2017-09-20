@@ -1,0 +1,207 @@
+doctype html
+html(lang='en')
+    head
+        title TakeTracking
+        link(rel='stylesheet', href='//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css')
+        // load bootstrap css
+        link(rel='stylesheet', href='//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css')
+        // load fontawesome
+        style.
+            body { padding-top:80px; }
+    body
+        form(method='post', action='/saveTask', id='taskForm')
+            .container
+                .jumbotron.text-center
+                    h1
+                        span.fa.fa-address-book
+                        |  TakeTracking
+                    table
+                        tr
+                            th
+                                a#btonStartTracking.btn.btn-info(href='javascript:void(0)', onclick='startTask();')
+                                    i.fa.fa-clock-o(aria-hidden='true')
+                                    |  Create task
+                            th
+                                input#saveTask.btn.btn-info(value='Save', type='submit', style='visibility: hidden;', onclick='addTask();')
+                            th
+                                a#btonCreateManually.btn.btn-info(href='#', onclick='taskManually();')
+                                    i.fa.fa-clock-o(aria-hidden='true')
+                                    |  Create manually
+                            th
+                                a.btn.btn-info(href='javascript:void(0)', onclick='cancel();')
+                                    i.fa.fa-times(aria-hidden='true')
+                                    |  Cancel
+                #divTaskManually.jumbotron(style='display: none')
+                    table
+                        tr
+                            th Task name
+                            th Hours
+                            th Minutes
+                            th Seconds
+                        tr
+                            th
+                                input#mtaskName.form-control(name='miName', type='text', size='50')
+                            th
+                                input#mHours.form-control(name='miHours', type='text', size='3', maxlength='4')
+                            th
+                                input#mMinutes.form-control(name='miMinutes', type='text', size='2', maxlength='2')
+                            th
+                                input#mSeconds.form-control(name='miSeconds', type='text', size='2', maxlength='2')
+                #task.jumbotron(style='display: none')
+                    table
+                        tr
+                            th(width='15%') Task name
+                            th(width='35%')
+                                input#taskName.form-control(name='taskName', type='text')
+                            th
+                                #Horas.reloj(name='Horas')  00
+                                input#thours(name='thours', type='hidden', value='')
+                            th
+                                #Minutos.reloj(name='Minutos') :00
+                                input#tminutes(name='tminutes', type='hidden', value='')
+                            th
+                                #Segundos.reloj(name='Segundos') :00
+                                input#tseconds(name='tseconds', type='hidden', value='')
+                            th
+                                #Centesimas.reloj(name='Centesimas') :00  
+                                input#thundredths(name='thundredths', type='hidden', value='')
+                            th
+                                a#inicio.btn.btn-info(href='#', onclick='inicio();')
+                                    |  Start ►
+                            th
+                                a#parar.btn.btn-info(href='#', onclick='parar();', style='visibility:hidden')
+                                    |  Stop ∎
+                            th
+                                a#continuar.btn.btn-info(href='#', onclick='inicio();', style='visibility:hidden')
+                                    |  Resume ↺
+                            th
+                                a#reinicio.btn.btn-info(href='#', onclick='reinicio();', style='visibility:hidden')
+                                    |  Reset ↻
+                #taskList.jumbotron
+                    table(border='1', width='100%')
+                        tr
+                            th
+                                h1(style='color: #458B74;', align='center') Name
+                            th(align='center')
+                                h1(style='color: #458B74;', align='center') Duration
+                            th
+                                h1(style='color: #458B74;', align='center') Date
+                        each task in tasksList
+                            tr
+                                th #{task.taskName}
+                                th #{task.taskDuration}
+                                th #{task.dateUpdated}
+        script(type='text/javascript').
+            var centesimas = 0;
+            var segundos = 0;
+            var minutos = 0;
+            var horas = 0;
+
+            function inicio () {
+                control = setInterval(cronometro,10);
+                document.getElementById("inicio").style.visibility = 'hidden';
+                document.getElementById("parar").style.visibility = 'visible';
+                document.getElementById("continuar").style.visibility = 'hidden';
+                document.getElementById("reinicio").style.visibility = 'visible';
+                document.getElementById("saveTask").style.visibility = 'hidden';
+            }
+            function parar () {
+                clearInterval(control);
+                document.getElementById("parar").style.visibility = 'hidden';
+                document.getElementById("continuar").style.visibility = 'visible';
+                document.getElementById("saveTask").style.visibility="visible";
+                addTask();
+            }
+            function reinicio () {
+                clearInterval(control);
+                centesimas = 0;
+                segundos = 0;
+                minutos = 0;
+                horas = 0;
+                Centesimas.innerHTML = ":00";
+                Segundos.innerHTML = ":00";
+                Minutos.innerHTML = ":00";
+                Horas.innerHTML = "00";
+                document.getElementById("inicio").style.visibility = 'visible';
+                document.getElementById("parar").style.visibility = 'hidden';
+                document.getElementById("continuar").style.visibility = 'hidden';
+                document.getElementById("reinicio").style.visibility = 'hidden';
+                document.getElementById("saveTask").style.visibility = 'hidden';
+            }
+            function cronometro () {
+                if (centesimas < 99) {
+                    centesimas++;
+                    if (centesimas < 10) { centesimas = "0"+centesimas }
+                    Centesimas.innerHTML = ":"+centesimas;
+                }
+                if (centesimas == 99) {
+                    centesimas = -1;
+                }
+                if (centesimas == 0) {
+                    segundos ++;
+                    if (segundos < 10) { segundos = "0"+segundos }
+                    Segundos.innerHTML = ":"+segundos;
+                }
+                if (segundos == 59) {
+                    segundos = -1;
+                }
+                if ( (centesimas == 0)&&(segundos == 0) ) {
+                    minutos++;
+                    if (minutos < 10) { minutos = "0"+minutos }
+                    Minutos.innerHTML = ":"+minutos;
+                }
+                if (minutos == 59) {
+                    minutos = -1;
+                }
+                if ( (centesimas == 0)&&(segundos == 0)&&(minutos == 0) ) {
+                    horas ++;
+                    if (horas < 10) { horas = "0"+horas }
+                    Horas.innerHTML = horas;
+                }
+            }
+            function startTask () {
+                document.getElementById('task').style.display = 'block';
+                document.getElementById("btonStartTracking").style.visibility="hidden";
+                document.getElementById("btonCreateManually").style.visibility="hidden";
+            }
+            function cancel () {
+                document.getElementById("btonStartTracking").style.visibility="visible";
+                document.getElementById("btonCreateManually").style.visibility="visible";
+                document.getElementById('task').style.display = 'none';
+                document.getElementById("saveTask").style.visibility="hidden";
+                document.getElementById("parar").style.visibility = 'hidden';
+                document.getElementById("continuar").style.visibility = 'visible';
+                document.getElementById("divTaskManually").style.display = 'none';
+                document.getElementById("taskName").value = "";
+                document.getElementById("thours").value = "";
+                document.getElementById("tminutes").value = "";
+                document.getElementById("tseconds").value = "";
+                document.getElementById("thundredths").value = "";
+
+                clearInterval(control);
+                reinicio()
+            }
+
+            var tasksList= [];
+
+            function addTask() {
+                var nameManually = document.getElementById("mtaskName").value;
+                if(nameManually.length > 0) {
+                    document.getElementById("taskName").value = nameManually;
+                    document.getElementById("thours").value = document.getElementById("mHours").value;
+                    document.getElementById("tminutes").value = document.getElementById("mMinutes").value;
+                    document.getElementById("tseconds").value = document.getElementById("mSeconds").value;
+                }  else {
+                    document.getElementById("thours").value = horas;
+                    document.getElementById("tminutes").value = minutos;
+                    document.getElementById("tseconds").value = segundos;
+                    document.getElementById("thundredths").value = centesimas;
+                }
+
+            }
+
+            function taskManually() {
+                document.getElementById('divTaskManually').style.display = 'block';
+                document.getElementById("saveTask").style.visibility = "visible";
+                document.getElementById("btonStartTracking").style.visibility="hidden";
+            }
